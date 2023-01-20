@@ -3,6 +3,7 @@ package model.entities;
 import java.io.Serializable;
 import java.util.Objects;
 
+// Serializable transforma os objetos em sequencia de bytes e isto por sua vez permite gravar os objtos em arquivo e trafegado em rede
 public class Departament implements Serializable {
 
 
@@ -35,6 +36,8 @@ public class Departament implements Serializable {
 		this.name = name;
 	}
 
+	
+	// hasCode para permitir comparar os objetos pelo seu conteúdo e não pela referencia
 	@Override
 	public int hashCode() {
 		return Objects.hash(id);
@@ -52,6 +55,7 @@ public class Departament implements Serializable {
 		return Objects.equals(id, other.id);
 	}
 
+	// metodo to string
 	@Override
 	public String toString() {
 		return String.format("Departament [id=%s, name=%s]", id, name);
