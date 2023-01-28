@@ -49,20 +49,15 @@ public class SellerDaoJDBC implements SellerDao {
 					+ "FROM seller INNER JOIN department "
 					+ "ON seller.DepartmentId = department.Id "
 					+ "WHERE seller.Id = ?");
-
+            
 			st.setInt(1, id);
 			rs = st.executeQuery();
+			
 			if (rs.next()) {
-				Departament dep = new Departament();
-				dep.setId(rs.getInt("DepartmentId"));
-				dep.setName(rs.getString("DepName"));
-				Seller obj = new Seller();
-				obj.setId(rs.getInt("Id"));
-				obj.setName(rs.getString("Name"));
-				obj.setEmail(rs.getString("Email"));
-				obj.setBaseSalary(rs.getDouble("BaseSalary"));
-				obj.setBirthDate(rs.getDate("BirthDate"));
-				obj.setDepartament(dep);
+//criando metodo para reutilizar a instanciação do Departament e evitar escrever muitas linhas... metodo que vai fazer isso é o #instantiateDepartament#
+				Departament dep = instantiateDepartament(rs);
+				//criando metodo para reutilizar a instanciação do Seller e evitar escrever muitas linhas... metodo que vai fazer isso é o #instantiateSeller#
+				Seller obj = instantiateSeller(rs, dep);
 				return obj;
 			}
 			return null;
@@ -76,7 +71,25 @@ public class SellerDaoJDBC implements SellerDao {
 		}
 		
 		}
-	
+	// a exceção do metodo auxiliar nao é tratada porque quando o metodo for chamado epla classe que irá utiliza-lo ele ja estara dentro de yum try catch, então nos vamos somente propagar a exceção	
+private Seller instantiateSeller(ResultSet rs, Departament dep) throws SQLException {
+	Seller obj = new Seller();
+	obj.setId(rs.getInt("Id"));
+	obj.setName(rs.getString("Name"));
+	obj.setEmail(rs.getString("Email"));
+	obj.setBaseSalary(rs.getDouble("BaseSalary"));
+	obj.setBirthDate(rs.getDate("BirthDate"));
+	obj.setDepartament(dep);
+		return obj;
+	}
+
+// a exceção do metodo auxiliar nao é tratada porque quando o metodo for chamado epla classe que irá utiliza-lo ele ja estara dentro de yum try catch, então nos vamos somente propagar a exceção
+	private Departament instantiateDepartament(ResultSet rs) throws SQLException {
+		Departament dep = new Departament();
+		dep.setId(rs.getInt("DepartmentId"));
+		dep.setName(rs.getString("DepName"));
+		return dep;
+	}
 
 	@Override
 	public List<Seller> findAll() {
