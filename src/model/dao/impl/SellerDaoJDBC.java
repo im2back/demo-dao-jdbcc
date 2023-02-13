@@ -95,9 +95,51 @@ private Seller instantiateSeller(ResultSet rs, Departament dep) throws SQLExcept
 	}
 
 	@Override
+	//essa operação vai buscar todos os vendedores com de acordo com a restrição sql
 	public List<Seller> findAll() {
-		// TODO Auto-generated method stub
-		return null;
+		PreparedStatement st = null;
+		ResultSet rs = null;
+		try {
+			st = conn.prepareStatement(
+					"SELECT seller.*,department.Name as DepName "
+					+ "FROM seller INNER JOIN department "
+					+ "ON seller.DepartmentId = department.Id "
+					+ "ORDER BY Name");
+
+		
+
+			rs = st.executeQuery();
+
+			List<Seller> list = new ArrayList<>();
+			Map<Integer, Departament> map = new HashMap<>();// ferramenta map para verificar se ja existe um departamento criado e evitar repetição
+            //#Integer# é o tipo de valor da chave para buscar(nesse caro é inteiro pos vamos buscar pelo ID DO departamento)
+			//#Departament# cada objeto verificado será do tipo departamento
+			//#map# nome do nosso objeto "apelido"
+		    //#new HashMap<>() instanciamento vazio
+			while (rs.next()) {
+                 // verificando se o departamento ja existe (se ja foi instanciado)
+				Departament dep = map.get(rs.getInt("DepartmentId"));
+                // variavel dep recebe o valor da consulta do método #map.get(rs.getInt("DepartmentId"));# 
+				// se o valor da consulta for nulo, quer dizer que não há departamento instanciado com o valor informado, então ele será instanciado
+				// se ja houver ele não será isntanciado e sim apontado para oq ja existe
+				if (dep == null) {
+					dep = instantiateDepartament(rs); // instanciando caso não existe ainda o departamento
+					
+					map.put(rs.getInt("DepartmentId"), dep);// salvando o departamento instanciado para futuras consultas no metodo map
+				}
+
+				Seller obj = instantiateSeller(rs, dep);
+				list.add(obj);
+			}
+			return list;
+		}
+		catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		}
+		finally {
+			DB.closeStatement(st);
+			DB.closeResultSet(rs);
+		}
 	}
 
 	@Override
